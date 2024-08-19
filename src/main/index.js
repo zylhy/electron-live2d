@@ -2,8 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-const {uIOhook} = require('uiohook-napi')
-
+import InputMonitor from '../utils/uiohook'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -35,7 +34,6 @@ function createWindow() {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  listenerKeyboardEvent(mainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -76,23 +74,15 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-// 监听全局鼠标事件，并执行javascript脚本
-const listenerKeyboardEvent = (win) => {
-  uIOhook.on('keydown', (e) => {
-      // 按下
-      const type = 1
-      // console.log(e)
-  })
-
-  uIOhook.on('keyup', (e) => {
-      // 抬起
-      const type = 2
-      // console.log(e)
-
-  })
-  uIOhook.on('mousemove',(e)=>{
-    // console.log(e,'mouse')
-  })
-
-  uIOhook.start()
-}
+// 监听全局键盘与鼠标事件
+let inputMonitor = new InputMonitor({
+  keydownCallback: (e) => {
+    console.log(e)
+  },
+  keyupCallback: (e) => {
+    console.log(e)
+  },
+  mousemoveCallback: (e) => {
+    console.log(e)
+  }
+})
