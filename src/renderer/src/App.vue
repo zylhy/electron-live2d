@@ -1,7 +1,9 @@
 <script setup>
-import Versions from './components/Versions.vue'
-
-const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+import Versions from "./components/Versions.vue";
+const ipcHandle = () => electron.ipcRenderer.send("ping");
+electron.ipcRenderer.on("key-down", (event, arg) => {
+  console.log(`Received key down event from main process: ${arg}`);
+});
 </script>
 
 <template>
@@ -14,7 +16,9 @@ const ipcHandle = () => window.electron.ipcRenderer.send('ping')
   <p class="tip">Please try pressing <code>F12</code> to open the devTool</p>
   <div class="actions">
     <div class="action">
-      <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">Documentation</a>
+      <a href="https://electron-vite.org/" target="_blank" rel="noreferrer"
+        >Documentation</a
+      >
     </div>
     <div class="action">
       <a target="_blank" rel="noreferrer" @click="ipcHandle">Send IPC</a>

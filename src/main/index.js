@@ -54,11 +54,31 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
-
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+
+  // 监听全局键盘与鼠标事件
+  new InputMonitor({
+    keydownCallback: (e) => {
+      // console.log(`down${e}`);
+      // 获取当前活动的窗口
+      const activeWindow = BrowserWindow.getFocusedWindow();
+      if (activeWindow) {
+        // 向渲染进程发送消息
+        activeWindow.webContents.send('key-down', e);
+      }
+
+
+    },
+    keyupCallback: (e) => {
+      // console.log(`up${e}`)
+    },
+    mousemoveCallback: (e) => {
+      // console.log(e)
+    }
   })
 })
 
@@ -74,15 +94,4 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-// 监听全局键盘与鼠标事件
-let inputMonitor = new InputMonitor({
-  keydownCallback: (e) => {
-    console.log(e)
-  },
-  keyupCallback: (e) => {
-    console.log(e)
-  },
-  mousemoveCallback: (e) => {
-    console.log(e)
-  }
-})
+

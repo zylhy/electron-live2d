@@ -1,44 +1,56 @@
-const { uIOhook } = require('uiohook-napi')
-// 监听全局鼠标事件，并执行javascript脚本
-
-// 定义一个类
-export default  class InputMonitor {
+import { uIOhook, UiohookKey } from 'uiohook-napi';
+const keyCodeArr = Object.entries(UiohookKey).map(n => {
+    return {
+        keyCode: n[1],
+        key: n[0]
+    }
+})
+// 定义一个监听类
+export default class InputMonitor {
     keydownCallback = null
     keyupCallback = null
     mousemoveCallback = null
     constructor(option) {
-        this.keydownCallback = option.keydownCallback
-        this.keyupCallback = option.keyupCallback
-        this.mousemoveCallback = option.mousemoveCallback
+        this.keydownCallback = option.keydownCallback || null
+        this.keyupCallback = option.keyupCallback || null
+        this.mousemoveCallback = option.mousemoveCallback || null
         this.start()
     }
     //   监听键盘事件
     listenerKeyboardEvent() {
         uIOhook.on('keydown', (e) => {
-            this.keydownCallback&&this.keydownCallback(e)
+            this.__resKey(e, this.keydownCallback)
         })
 
         uIOhook.on('keyup', (e) => {
-            // 抬起
-            this.keyupCallback&&this.keyupCallback(e)
-
+            this.__resKey(e, this.keyupCallback)
         })
     }
 
     //   监听鼠标移动，主要用于live2d 的跟随
     listenerMouseEvent() {
         uIOhook.on('mousemove', (e) => {
-            console.log(e, 'mouse')
-            this.mousemoveCallback&&this.mousemoveCallback(e)
+            this.mousemoveCallback && this.mousemoveCallback({ x: e.x, y: e.y })
         })
     }
+    // 开始
     start() {
         this.listenerKeyboardEvent()
         this.listenerMouseEvent()
         uIOhook.start()
     }
+    // 关闭
     close() {
         uIOhook.stop()
+    }
+
+    __resKey(e, callback) {
+        // 不响应组合键
+        // if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
+        //     console.log(e) 
+        // }
+        let keyObj = keyCodeArr.find(n => n.keyCode == e.keycode)
+        callback && callback(keyObj.key)
     }
 }
 
