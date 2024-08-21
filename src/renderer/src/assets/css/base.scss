@@ -1,0 +1,147 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+#app,
+.Wrap,
+.Main {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.Main {
+    overflow-y: auto;
+}
+
+
+
+img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+video {
+    width: 100%;
+    height: auto;
+}
+
+div {
+    box-sizing: border-box;
+}
+
+.floatBox {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+
+/* 重置所有元素的内外边距 */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+/* 重置表单元素的样式 */
+input,
+button,
+textarea,
+select {
+    border: none;
+    outline: none;
+    font: inherit;
+}
+
+/* 删除表单元素的默认外观 */
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+    appearance: none;
+    background: none;
+}
+
+/* 重置表格元素的样式 */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+td,
+th {
+    border: none;
+}
+
+/* 重置链接的样式 */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* 重置 HTML5 新增的块级元素 */
+article,
+aside,
+footer,
+header,
+nav,
+section {
+    display: block;
+}
+
+/* 重置HTML5新元素在旧版IE中的样式 */
+main {
+    display: block;
+}
+
+/* 重置 details 和 summary 元素的样式 */
+details {
+    display: block;
+}
+
+summary {
+    display: list-item;
+}
+
+@function vw($val) {
+    @return calc($val/750) *100vw
+}
+
+;
+
+@function pvw($val) {
+    @return calc($val/1920) *100vw
+}
+
+;
+
+@function px($val) {
+    @return $val*1px
+}
+;
+
+@mixin positionCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@mixin backgroundImg($url) {
+    background-image: url($url);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
