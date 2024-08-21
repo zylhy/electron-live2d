@@ -6,10 +6,13 @@ import InputMonitor from '../utils/uiohook'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 400,
+    height: 400,
     show: false,
     autoHideMenuBar: true,
+    frame:false,
+    resizable:false,
+    // transparent:true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
