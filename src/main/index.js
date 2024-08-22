@@ -12,7 +12,7 @@ function createWindow() {
     autoHideMenuBar: true,
     frame:false,
     resizable:false,
-    // transparent:true,
+    transparent:true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -22,6 +22,7 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    mainWindow.setAlwaysOnTop(true)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

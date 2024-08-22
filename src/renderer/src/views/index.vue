@@ -1,58 +1,53 @@
 <template>
-    1
   <div class="canvas-wrap">
-    <canvas id="live2d-canvas" class="live2d-canvas" width="100" height="300"></canvas>
+    <canvas id="live2d-canvas" class="live2d-canvas" width="400" height="400"></canvas>
   </div>
 </template>
-
 <script setup>
-import * as PIXI from 'pixi.js'
-import * as pixiFnPatch from "@pixi/unsafe-eval"
-import { Live2DModel } from 'pixi-live2d-display'
-import jsonFile from '/Resources/Haru/Haru.model3.json?url'
-// 全局注册
-let windowRef  = window;
-windowRef.PIXI = PIXI;
-// 修复@pixi/unsafe-eval无法正常安装问题
+import * as PIXI from "pixi.js";
+import { Live2DModel } from "pixi-live2d-display/cubism4";
+import jsonFile from "/Resources/Haru/Haru.model3.json?url";
+import * as pixiFnPatch from "@pixi/unsafe-eval";
+window.PIXI = PIXI;
 pixiFnPatch.install(PIXI);
-
-async function initLive2D(){
+const initLive2D = async () => {
+  
   let model = await Live2DModel.from(jsonFile);
   const app = new PIXI.Application({
-    view: document.getElementById('live2d-canvas') ,
-    width: 100,
-    height: 300,
-    autoStart:true,
-    backgroundAlpha:0
+    view: document.getElementById("live2d-canvas"),
+    autoStart: true,
+    autoDensity: true,
+    width: 400,
+    height: 400,
+    resolution: window.devicePixelRatio,
+    backgroundAlpha: 1,
   });
   app.stage.addChild(model);
-  // app.renderer.backgroundColor = 0x0161639;
-  // transforms 模型方位
-  model.x = -10; // 方位（单位像素）
-  model.y = -20
-  // model.rotation = Math.PI
-  // model.skew.x = Math.PI
-  model.scale.set(0.6)  // 缩放
-  model.anchor.set(0, 0) // 锚点，以画布中心下方为中心点,x，y（单位：倍）
-  model.on('hit', (hitAreas) => {
-    // if (hitAreas.includes('body')) {
-    //   model.motion('tap_body')
-    // }
+  setModel(model);
+  model.on("hit",hit=>{
+    console.log(hit)
   })
-}
+};
+// 设置缩放比和设置模型位置
+const setModel = (model) => {
+  let bounds = model.getBounds();
+  model.scale.set(Math.min(1, 400 / bounds.width, 400 / bounds.height));
+  bounds = model.getBounds();
+  // 左右居中
+  model.x = 400 / 2 - bounds.width / 2;
+};
 onMounted(() => {
   initLive2D();
-})
+});
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .canvas-wrap {
   width: 100%;
   height: 100%;
-  cursor: move;
-  -webkit-app-region: drag;
 }
 .live2d-canvas {
   width: 100%;
   height: 100%;
+  cursor: move;
 }
 </style>
