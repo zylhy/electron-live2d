@@ -10,9 +10,9 @@ function createWindow() {
     height: 400,
     show: false,
     autoHideMenuBar: true,
-    frame:false,
-    resizable:false,
-    transparent:true,
+    frame: false,
+    resizable: false,
+    transparent: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -22,6 +22,7 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    //窗口置顶
     mainWindow.setAlwaysOnTop(true)
   })
 
@@ -56,7 +57,11 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-
+  ipcMain.on('ignoreMouse', (e,payLoad) => {
+    const activeWindow = BrowserWindow.getFocusedWindow();
+    console.log(payLoad,payLoad,'111213132111111111111111')
+    // activeWindow.setIgnoreMouseEvents(payLoad)
+  })
   createWindow()
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
