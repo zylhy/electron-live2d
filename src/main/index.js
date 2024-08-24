@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import InputMonitor from '../utils/uiohook'
+
+let appWin = null;
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -24,6 +26,8 @@ function createWindow() {
     mainWindow.show()
     //窗口置顶
     mainWindow.setAlwaysOnTop(true)
+    //默认忽略鼠标
+    // mainWindow.setIgnoreMouseEvents(true, { forward: true })
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -38,7 +42,7 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-
+  appWin = mainWindow;
 }
 
 // This method will be called when Electron has finished
@@ -57,10 +61,19 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-  ipcMain.on('ignoreMouse', (e,payLoad) => {
-    const activeWindow = BrowserWindow.getFocusedWindow();
-    console.log(payLoad,payLoad,'111213132111111111111111')
-    // activeWindow.setIgnoreMouseEvents(payLoad)
+  ipcMain.on('ignoreMouse', (e, payLoad) => {
+ 
+  console.log(appWin);
+    if(!appWin) return 
+    console.log(payLoad, '111213132111111111111111')
+    if (payLoad) {
+      appWin.setIgnoreMouseEvents(payLoad, { forward: payLoad })
+      console.log("ignore")
+   
+    } else {
+      appWin.setIgnoreMouseEvents(false)
+      console.log("no ignore")
+    }
   })
   createWindow()
   app.on('activate', function () {
@@ -74,10 +87,10 @@ app.whenReady().then(() => {
     keydownCallback: (e) => {
       // console.log(`down${e}`);
       // 获取当前活动的窗口
-      const activeWindow = BrowserWindow.getFocusedWindow();
+      // const activeWindow = BrowserWindow.getFocusedWindow();
       if (activeWindow) {
         // 向渲染进程发送消息
-        activeWindow.webContents.send('key-down', e);
+        // activeWindow.webContents.send('key-down', e);
       }
 
 

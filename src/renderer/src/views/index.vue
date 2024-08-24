@@ -12,8 +12,9 @@ window.PIXI = PIXI;
 pixiFnPatch.install(PIXI);
 const initLive2D = async () => {
   let model = await Live2DModel.from(jsonFile);
+  let canvas = document.getElementById("live2d-canvas");
   const app = new PIXI.Application({
-    view: document.getElementById("live2d-canvas"),
+    view: canvas,
     autoStart: true,
     autoDensity: true,
     width: 400,
@@ -26,18 +27,15 @@ const initLive2D = async () => {
   model.on("hit", (hit) => {
     console.log(hit);
   });
-  app.stage.interactive = true;
-  app.stage.hitArea = new PIXI.Rectangle(0, 0, app.screen.width, app.screen.height);
-  app.stage.on("pointerdown", (event) => {
-    console.log("pointerdown");
-
-    if (!model.getBounds().contains(event.data.global.x, event.data.global.y)) {
-      // 如果点击不在模型内，则穿透到下方窗口
-      electron.ipcRenderer.send("ignoreMouse", true);
-      console.log('穿透')
-    } else {
+  // 给canvas添加鼠标移动事件
+  canvas.addEventListener("mousemove", (e) => {
+    if (model.getBounds().contains(e.clientX, e.clientY)) {
       electron.ipcRenderer.send("ignoreMouse", false);
-      console.log('不穿透')
+      console.log("鼠标移动1");
+    }else{
+      electron.ipcRenderer.send("ignoreMouse", true);
+      console.log("鼠标移动2");
+
     }
   });
 };
@@ -63,6 +61,5 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   cursor: move;
-  -webkit-app-region: drag;
 }
 </style>
