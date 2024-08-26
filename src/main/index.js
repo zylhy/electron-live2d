@@ -1,10 +1,14 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import InputMonitor from '../utils/uiohook'
 
 let appWin = null;
+let appFocus = false;
+let mouseDown = false
+let appPosition = [0, 0]
+let screenInfo = null
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -25,7 +29,7 @@ function createWindow() {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
     //窗口置顶
-    mainWindow.setAlwaysOnTop(true)
+    // mainWindow.setAlwaysOnTop(true)
     //默认忽略鼠标
     // mainWindow.setIgnoreMouseEvents(true, { forward: true })
   })
@@ -62,17 +66,11 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.on('ignoreMouse', (e, payLoad) => {
- 
-  console.log(appWin);
-    if(!appWin) return 
-    console.log(payLoad, '111213132111111111111111')
+    if (!appWin) return
     if (payLoad) {
       appWin.setIgnoreMouseEvents(payLoad, { forward: payLoad })
-      console.log("ignore")
-   
     } else {
       appWin.setIgnoreMouseEvents(false)
-      console.log("no ignore")
     }
   })
   createWindow()
@@ -81,6 +79,8 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+  appWin.on('blur', () => appFocus = false)
+  appWin.on('focus', () => appFocus = true)
 
   // 监听全局键盘与鼠标事件
   new InputMonitor({
@@ -98,9 +98,50 @@ app.whenReady().then(() => {
     keyupCallback: (e) => {
       // console.log(`up${e}`)
     },
+    mousedownCallback: (e) => {
+      mouseDown = true
+      if (appFocus) {
+        const displays = screen.getAllDisplays();
+        // 计算所有屏幕的总宽度和高度
+        let totalWidth = 0;
+        let totalHeight = 0;
+
+        displays.forEach(display => {
+          totalWidth += display.workAreaSize.width;
+          totalHeight = Math.max(totalHeight, display.workAreaSize.height);
+        });
+        screenInfo = {
+          width: totalWidth,
+          height: totalHeight
+        }
+        console.log(screenInfo)
+
+        let position = appWin.getPosition()
+        appPosition = [e.x - position[0], e.y - position[1]]
+      }
+    },
     mousemoveCallback: (e) => {
-      // console.log(e)
-    }
+      // console.log(e,'move')
+      // 拖动处理
+      if (appFocus && mouseDown) {
+        let { width, height } = screenInfo
+        let appSize = appWin.getSize()
+
+        let x = e.x - appPosition[0]
+        let y = e.y - appPosition[1]
+        if (x + appSize[0] > width) x = width - appSize[0]
+        if (y + appSize[1] > height) y = height - appSize[1]
+        if (x < 0) x = 0
+        if (y < 0) y = 0
+        appWin.setPosition(x, y)
+      }
+
+    },
+    mouseupCallback: (e) => {
+      mouseDown = false
+
+    },
+
   })
 })
 
