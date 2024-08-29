@@ -76,7 +76,7 @@ export class live2dWinManager extends winBase {
         if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
             this.win.loadURL(process.env['ELECTRON_RENDERER_URL'])
         } else {
-            this.win.loadFile(join(__dirname, '../../renderer/index.html'))
+            this.win.loadFile(join(__dirname, '../renderer/index.html'))
         }
         ipcMain.on('ignoreMouse', (e, payLoad) => {
             if (payLoad) {
