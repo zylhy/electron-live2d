@@ -20,7 +20,7 @@ const initLive2D = async () => {
     width: 400,
     height: 400,
     resolution: window.devicePixelRatio,
-    backgroundAlpha: 0.5,
+    backgroundAlpha:0,
   });
   app.stage.addChild(model);
   setModel(model);
