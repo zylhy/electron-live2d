@@ -3,7 +3,7 @@ import { shell, BrowserWindow, screen, ipcMain } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { uIOhook, UiohookKey } from 'uiohook-napi';
-
+import { saveConfig, readConfig } from './index'
 const keyCodeArr = Object.entries(UiohookKey).map(n => {
     return {
         keyCode: n[1],
@@ -36,7 +36,11 @@ export class live2dWinManager extends winBase {
         this.monitorMouse()
     }
     createWindow() {
+        let x = this.__readPosition().live2dX || undefined
+        let y = this.__readPosition().live2dY || undefined
         this.win = new BrowserWindow({
+            x,
+            y,
             width: this.width || 400,
             height: this.height || 400,
             frame: false,
@@ -56,11 +60,13 @@ export class live2dWinManager extends winBase {
             // 默认忽略鼠标
             this.win.setIgnoreMouseEvents(true, { forward: true })
         })
+        this.win.on('close',()=>{
+            this.__writePosition()
+        })
         this.win.on('closed', () => {
             this.win = null
             uIOhook.stop()
         })
-
         this.win.on('blur', () => this.focus = false)
         this.win.on('focus', () => this.focus = true)
         this.win.webContents.setWindowOpenHandler((details) => {
@@ -90,14 +96,7 @@ export class live2dWinManager extends winBase {
             this.__resKey(e, 'keyup')
         })
     }
-    __resKey(e, type) {
-        // 不响应组合键
-        // if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
-        //     console.log(e) 
-        // }
-        let keyObj = keyCodeArr.find(n => n.keyCode == e.keycode)
-        this.win.webContents.send(type, keyObj.key)
-    }
+
 
     monitorMouse() {
         uIOhook.on('mousedown', (e) => {
@@ -140,5 +139,23 @@ export class live2dWinManager extends winBase {
             this.mouseDown = false
 
         })
+    }
+    __resKey(e, type) {
+        // 不响应组合键
+        // if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
+        //     console.log(e) 
+        // }
+        let keyObj = keyCodeArr.find(n => n.keyCode == e.keycode)
+        this.win.webContents.send(type, keyObj.key)
+    }
+    __writePosition() {
+        let position = this.win.getPosition()
+        saveConfig({
+            live2dX: position[0],
+            live2dY: position[1]
+        })
+    }
+    __readPosition() {
+        return readConfig()
     }
 } 
