@@ -1,6 +1,7 @@
 const fs = require('fs');
+import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
-let configPath = join(__dirname, '../live2d.config')
+let configPath = is.dev? join(process.cwd(), 'config/app.properties'):join(process.cwd(), 'resources/config/app.properties')
 
 // 写入配置文件
 export function saveConfig(config) {

@@ -36,8 +36,8 @@ export class live2dWinManager extends winBase {
         this.monitorMouse()
     }
     createWindow() {
-        let x = this.__readPosition().live2dX || undefined
-        let y = this.__readPosition().live2dY || undefined
+        let x = this.__readPosition().live2dX 
+        let y = this.__readPosition().live2dY 
         this.win = new BrowserWindow({
             x,
             y,
@@ -55,8 +55,6 @@ export class live2dWinManager extends winBase {
         })
         this.win.on('ready-to-show', () => {
             this.win.show()
-            //窗口置顶
-            // mainWindow.setAlwaysOnTop(true)
             // 默认忽略鼠标
             this.win.setIgnoreMouseEvents(true, { forward: true })
         })
