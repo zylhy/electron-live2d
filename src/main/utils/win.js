@@ -1,9 +1,9 @@
 
-import { shell, BrowserWindow, screen, ipcMain } from 'electron'
+import { shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { uIOhook, UiohookKey } from 'uiohook-napi';
-import { saveConfig, readConfig } from './index'
+import { saveConfig, readConfig, getUserScreenInfo } from './index'
 const keyCodeArr = Object.entries(UiohookKey).map(n => {
     return {
         keyCode: n[1],
@@ -16,12 +16,11 @@ class winBase {
     width = null;
     height = null;
     constructor(width, height) {
-        this.width = width;
-        this.height = height;
+        this.width = width || 400;
+        this.height = height || 400;
     }
 
 }
-
 export class live2dWinManager extends winBase {
     focus = false; //是否聚焦
     mouseDown = false; //鼠标是否按下
@@ -36,13 +35,29 @@ export class live2dWinManager extends winBase {
         this.monitorMouse()
     }
     createWindow() {
-        let x = this.__readPosition().live2dX 
-        let y = this.__readPosition().live2dY 
+        // 窗口记忆，先判断是否在窗口里面
+        let winX = undefined;
+        let winY = undefined;
+        this.screenInfo = getUserScreenInfo();
+        if ( this.__readPosition().live2dX >= 0
+            && this.__readPosition().live2dX <= this.screenInfo.width - this.width
+            && this.__readPosition().live2dY >= 0
+            && this.__readPosition().live2dY <= this.screenInfo.height - this.height
+        ) {
+            winX = this.__readPosition().live2dX
+            winY = this.__readPosition().live2dY
+        }
+        console.log(this.__readPosition().live2dX, this.__readPosition().live2dY, this.width, this.height)
+        console.log(this.__readPosition().live2dX >= 0
+            && this.__readPosition().live2dX <= this.screenInfo.width - this.width
+            && this.__readPosition().live2dY >= 0
+            && this.__readPosition().live2dY <= this.screenInfo.height - this.height)
+
         this.win = new BrowserWindow({
-            x,
-            y,
-            width: this.width || 400,
-            height: this.height || 400,
+            x: winX,
+            y: winY,
+            width: this.width,
+            height: this.height,
             frame: false,
             autoHideMenuBar: true,
             transparent: true,
@@ -58,7 +73,7 @@ export class live2dWinManager extends winBase {
             // 默认忽略鼠标
             this.win.setIgnoreMouseEvents(true, { forward: true })
         })
-        this.win.on('close',()=>{
+        this.win.on('close', () => {
             this.__writePosition()
         })
         this.win.on('closed', () => {
@@ -85,7 +100,6 @@ export class live2dWinManager extends winBase {
         })
     }
     monitorKeyboard() {
-
         uIOhook.on('keydown', (e) => {
             this.__resKey(e, 'keydown')
         })
@@ -94,25 +108,11 @@ export class live2dWinManager extends winBase {
             this.__resKey(e, 'keyup')
         })
     }
-
-
     monitorMouse() {
         uIOhook.on('mousedown', (e) => {
             this.mouseDown = true
             if (this.focus) {
-                const displays = screen.getAllDisplays();
-                // 计算所有屏幕的总宽度和高度
-                let totalWidth = 0;
-                let totalHeight = 0;
-
-                displays.forEach(display => {
-                    totalWidth += display.workAreaSize.width;
-                    totalHeight = Math.max(totalHeight, display.workAreaSize.height);
-                });
-                this.screenInfo = {
-                    width: totalWidth,
-                    height: totalHeight
-                }
+                this.screenInfo = getUserScreenInfo()
                 let position = this.win.getPosition()
                 this.mousePointDis = [e.x - position[0], e.y - position[1]]
             }
