@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { live2dWinManager } from './utils/win'
+import createTray from './utils/tray.js';
+
 let appWin = null;
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
@@ -8,6 +10,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
   appWin = new live2dWinManager()
+  createTray()
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
