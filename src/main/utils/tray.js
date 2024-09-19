@@ -1,6 +1,7 @@
 import { Tray, Menu, nativeImage } from 'electron'
-const icon = nativeImage.createFromPath('../../../build/icon.ico')
 export default function createTray() {
+const icon = nativeImage.createFromPath('../../../build/icon.ico')
+
     let tray = new Tray(icon)
     tray.setToolTip("cat")
 
