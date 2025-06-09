@@ -1,9 +1,10 @@
 <template>
-  <div class="canvas-wrap">
+  <div class="canvas-wrap" @click="canvasClick">
     <canvas id="live2d-canvas" class="live2d-canvas" width="400" height="400"></canvas>
   </div>
 </template>
 <script setup>
+// const { ipcRenderer } = require('electron');
 import * as PIXI from "pixi.js";
 import { Live2DModel } from "pixi-live2d-display/cubism4";
 import jsonFile from "/Resources/Haru/Haru.model3.json?url";
@@ -47,7 +48,16 @@ const setModel = (model) => {
   // 左右居中
   model.x = 400 / 2 - bounds.width / 2;
 };
+const canvasClick= ()=>{
+  // 指定你想识别的屏幕区域（单位：像素）
+const region = { left: 100, top: 200, width: 200, height: 80 };
 
+async function getScreenNumber() {
+  const digits = await electron.ipcRenderer.invoke('ocr:getDigits', region);
+  console.log('识别到数字：', digits);
+}
+getScreenNumber()
+}
 onMounted(() => {
   initLive2D();
 });
