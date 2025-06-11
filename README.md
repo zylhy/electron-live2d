@@ -35,3 +35,4 @@ $ npm run build:linux
 
 
 npm install screenshot-desktop sharp tesseract.js
+node : v18.20.0
